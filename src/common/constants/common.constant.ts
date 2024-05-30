@@ -1,6 +1,3 @@
-
-
-
 export const SWAGGER_API_TAGS = {
     APP: 'APP',
     SEARCH: 'Search',

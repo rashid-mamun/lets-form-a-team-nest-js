@@ -4,6 +4,9 @@ import { UserEntity } from "./entities/user.entity";
 import { DeleteResult, Repository } from "typeorm";
 import { UserProfileEntity } from "./entities/userProfile.entity";
 import { IPaginatedResult, ISearchOptions } from "src/common/interfaces/common.interface";
+import * as bcrypt from 'bcrypt';
+import { UserTypeEntity } from "./entities/userType.entity";
+import { UserTypeMapEntity } from "./entities/userTypeMap.entity";
 
 
 
@@ -15,6 +18,12 @@ export class UserEntityService {
 
         @InjectRepository(UserProfileEntity)
         private readonly userProfileRepo: Repository<UserProfileEntity>,
+
+        @InjectRepository(UserTypeEntity)
+        private readonly userTypeRepo: Repository<UserTypeEntity>,
+
+        @InjectRepository(UserTypeMapEntity)
+        private readonly userTypeMapRepo: Repository<UserTypeMapEntity>,
     ) { }
     async getUser(searchOptions: any): Promise<UserEntity | null> {
         const { filters } = searchOptions;
@@ -68,20 +77,55 @@ export class UserEntityService {
         }
         throw new NotFoundException('No matching record found for deletion');
     }
+    async validateUser(username: string, pass: string): Promise<any> {
+        const user = await this.userRepo.findOne({ where: { username } });
+        if (user && await bcrypt.compare(pass, user.password)) {
+            const { password, ...result } = user;
+            return result;
+        }
+        return null;
 
-    /* async getUserProfile(searchOptions: ISearchOptions): Promise<any | null> {
-        const { filters } = searchOptions;
+    }
 
-        return await this.userRepo.findOne({
-            relations: {
-                profile: true,
-            },
-            where: filters,
-        });
-    } */
 
+    // Methods for UserProfileEntity...
     async insertUserProfile(userProfile: Partial<UserProfileEntity>): Promise<UserProfileEntity> {
         return await this.userProfileRepo.save(userProfile);
     }
-    
+    async insertUserProfiles(userProfiles: Partial<UserProfileEntity>[]): Promise<UserProfileEntity[]> {
+        return await this.userProfileRepo.save(userProfiles);
+    }
+    async getUserProfile(searchOptions: ISearchOptions): Promise<UserProfileEntity | null> {
+        const { filters } = searchOptions;
+        return await this.userProfileRepo.findOne({ where: filters });
+    }
+
+
+    // Methods for UserTypeEntity.
+    async getUserType(searchOptions: ISearchOptions): Promise<UserTypeEntity | null> {
+        const { filters } = searchOptions;
+        return await this.userTypeRepo.findOne({ where: filters });
+    }
+    async insertUserType(userType: UserTypeEntity): Promise<UserTypeEntity> {
+        return await this.userTypeRepo.save(userType);
+    }
+
+    async insertUserTypes(userTypes: UserTypeEntity[]): Promise<UserTypeEntity[]> {
+        return await this.userTypeRepo.save(userTypes);
+    }
+
+    // Methods for UserTypeMapEntity...
+    async getUserTypeMap(searchOptions: ISearchOptions): Promise<UserTypeMapEntity | null> {
+        const { filters } = searchOptions;
+        return await this.userTypeMapRepo.findOne({ where: filters });
+    }
+
+    async insertUserTypeMap(userTypeMap: Partial<UserTypeMapEntity>): Promise<UserTypeMapEntity | null> {
+        return await this.userTypeMapRepo.save(userTypeMap);
+    }
+
+    async insertUserTypeMaps(userTypeMaps: UserTypeMapEntity[]): Promise<UserTypeMapEntity[]> {
+        return await this.userTypeMapRepo.save(userTypeMaps);
+    }
+
 }

@@ -1,9 +1,6 @@
 import { Entity, Column, CreateDateColumn, PrimaryGeneratedColumn, OneToOne, Index } from "typeorm";
-import { UserProfileEntity } from "./userProfile.entity";
-
 
 @Entity('user')
-@Index('IDX_email', ['email'], { unique: true })
 @Index('IDX_username', ['username'], {})
 export class UserEntity {
 
@@ -12,9 +9,6 @@ export class UserEntity {
 
     @Column('varchar', { name: 'username', unique: true, length: 255 })
     username: string;
-
-    @Column('varchar', { name: 'email', unique: true, length: 255 })
-    email: string;
 
     @Column('varchar', { name: 'password', length: 255 })
     password: string;
@@ -33,9 +27,5 @@ export class UserEntity {
         onUpdate: 'CURRENT_TIMESTAMP'
     })
     updatedAt: Date;
-
-    @OneToOne((type) => UserProfileEntity, (profile) => profile.user)
-    profile: UserProfileEntity;
-
 }
 
