@@ -1,73 +1,276 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Let's Form a Team
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+An Account Type-Based Authorization/Authentication System using NestJS, MySQL, and TypeORM
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Project Setup
 
-## Description
+### Setting up the Database
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+1. Switch to the MySQL command line:
+    ```bash
+    mysql -u root -p
+    ```
+2. Create the database:
+    ```sql
+    CREATE DATABASE hr_hero_db;
+    ```
+3. Create a user with an encrypted password:
+    ```sql
+    CREATE USER 'super_admin'@'localhost' IDENTIFIED BY 'superadmin';
+    ```
+4. Grant all privileges to the created user:
+    ```sql
+    GRANT ALL PRIVILEGES ON hr_hero_db.* TO 'super_admin'@'localhost';
+    ```
+5. Flush the privileges to ensure they are saved and available in the current session:
+    ```sql
+    FLUSH PRIVILEGES;
+    ```
 
-## Installation
+### Setting up the Project
 
-```bash
-$ npm install
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/rashid-mamun/lets-form-a-team-nest-js.git
+    ```
+2. Navigate to the project directory:
+    ```bash
+    cd lets-form-a-team-nest-js
+    ```
+3. Install dependencies:
+    ```bash
+    npm
+    ```
+4. Set up the environment variables. Create a `.env` file in the project root and add the following:
+    ```env
+    APP_ENV = development
+    APP_PORT = 3000
+    JWT_SECRET='jwt secret key'
+    JWT_ACCESS_TOKEN_EXPIRATION=15m
+    JWT_REFRESH_TOKEN_EXPIRATION=15d
+    DB_HOST=localhost
+    DB_PORT=3306
+    DB_USERNAME=root
+    DB_PASSWORD= root
+    DB_DATABASE= lets_form_a_team
+    DB_SYNC=true
+    ```
+5. Start the development server:
+    ```bash
+    npm run start:dev
+    ```
+
+### Running the Seeder API
+
+This API helps in seeding the initial requirements, which include creating specific account types and a super admin. This can be automated.
+
+**URL** (POST REQUEST): `http://127.0.0.1:3000/api/core/seeder`
+
+### Account Types
+
+- Super Admin: 1
+- Manager: 2
+- Employee: 3
+
+## Authentication and Authorization
+
+### Login
+
+**URL**: `http://127.0.0.1:3000/api/core/login/`
+
+**Sample POST Request:**
+```json
+{
+    "username": "superAdmin",
+    "password": "super_admin1"
+}
 ```
 
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+**Sample Response:**
+```json
+{
+    "message": "Successful",
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "profile": {
+        "id": 1,
+        "name": "Super Admin",
+        "contactNumber": "01837645524",
+        "email": "",
+        "createdAt": "2022-08-31T16:25:59.318Z",
+        "updatedAt": "2022-08-31T16:25:59.318Z",
+        "userId": 1,
+        "createdBy": null,
+        "updatedBy": null
+    }
+}
 ```
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+Use this access token in requests that require authorization. The Authorization header must be set like this:
+```
+Authorization: jwt <accessToken>
 ```
 
-## Support
+### Refresh Access Token
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**URL**: `http://127.0.0.1:3000/api/core/refresh-token/`
 
-## Stay in touch
+**Sample POST Request:**
+```json
+{
+    "accessToken": "jwt <accessToken>"
+}
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+**Sample Response:**
+```json
+{
+    "status": 200,
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires": "in 2 days"
+}
+```
 
-## License
+### Register Manager
 
-Nest is [MIT licensed](LICENSE).
+Only a super admin can add a manager.
+
+**URL**: `http://127.0.0.1:3000/api/core/register/user-profile/`
+
+**Sample POST Request:**
+```json
+{
+    "username": "manager1",
+    "password": "Manager1",
+    "name": "John Manager",
+    "contactNumber": "01789652243",
+    "email": "john@hrhero.com",
+    "accountType": 2
+}
+```
+
+**Sample Response:**
+```json
+{
+    "message": "Successful",
+    "data": {
+        "id": 1,
+        "username": "manager1",
+        "name": "John Manager",
+        "contactNumber": "01789652243",
+        "email": "john@hrhero.com",
+        "accountType": "Manager"
+    }
+}
+```
+
+### Register Employee
+
+A super admin or a manager can add an employee.
+
+**URL** (POST REQUEST): `http://127.0.0.1:3000/api/core/register/user-profile/`
+
+**Sample POST Request:**
+```json
+{
+    "username": "harryMaguire",
+    "password": "Defender1",
+    "name": "Harry Maguire",
+    "contactNumber": "01789353343",
+    "email": "harry@hrhero.com",
+    "accountType": 3
+}
+```
+
+**Sample Response:**
+```json
+{
+    "message": "Successful",
+    "data": {
+        "id": 17,
+        "username": "harryMaguire",
+        "name": "Harry Maguire",
+        "contactNumber": "01789353343",
+        "email": "harry@hrhero.com",
+        "accountType": "Employee"
+    }
+}
+```
+
+### Get All Users
+
+**URL** (GET REQUEST): `http://127.0.0.1:3000/api/core/get-users/`
+
+**Sample Response:**
+```json
+{
+    "message": "Successful",
+    "data": [
+        {
+            "id": 2,
+            "name": "Super Admin",
+            "contactNumber": "01837645524",
+            "email": "",
+            "createdAt": "2022-08-27T10:08:57.452Z",
+            "updatedAt": "2022-08-27T10:08:57.452Z",
+            "userId": 2,
+            "createdBy": null,
+            "updatedBy": null
+        },
+        {
+            "id": 1,
+            "name": "John Manager",
+            "contactNumber": "01789652243",
+            "email": "john@hrhero.com",
+            "createdAt": "2022-08-27T10:01:49.739Z",
+            "updatedAt": "2022-08-27T10:01:49.739Z",
+            "userId": 1,
+            "createdBy": 2,
+            "updatedBy": 2
+        },
+        {
+            "id": 16,
+            "name": "Scott Mctominay",
+            "contactNumber": "01789653343",
+            "email": "scott@hrhero.com",
+            "createdAt": "2022-08-27T12:20:31.003Z",
+            "updatedAt": "2022-08-27T12:20:31.003Z",
+            "userId": 24,
+            "createdBy": 2,
+            "updatedBy": 2
+        },
+        {
+            "id": 17,
+            "name": "Harry Maguire",
+            "contactNumber": "01789353343",
+            "email": "harry@hrhero.com",
+            "createdAt": "2022-08-27T12:23:02.423Z",
+            "updatedAt": "2022-08-27T12:23:02.423Z",
+            "userId": 25,
+            "createdBy": 2,
+            "updatedBy": 2
+        }
+    ]
+}
+```
+
+### Get User by ID
+
+**URL** (GET REQUEST): `http://127.0.0.1:3000/api/core/get-user/?id=1`
+
+**Sample Response:**
+```json
+{
+    "message": "Successful",
+    "data": {
+        "id": 1,
+        "name": "John Manager",
+        "contactNumber": "01789652243",
+        "email": "john@hrhero.com",
+        "createdAt": "2022-08-27T10:01:49.739Z",
+        "updatedAt": "2022-08-27T10:01:49.739Z",
+        "userId": 1,
+        "createdBy": 2,
+        "updatedBy": 2
+    }
+}
+```

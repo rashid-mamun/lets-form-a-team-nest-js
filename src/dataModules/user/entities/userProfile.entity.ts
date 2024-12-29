@@ -11,11 +11,20 @@ export class UserProfileEntity {
     @Column('varchar', { name: 'name', length: 255 })
     name: string;
 
+    @Column('varchar', { name: 'email', unique: true, length: 255 })
+    email: string;
+
     @Column('varchar', { name: 'contactNumber', length: 255 })
     contactNumber: string;
 
     @Column('varchar', { name: 'authUserId', nullable: false, length: 255 })
     authUserId: string;
+
+    @Column('int', { name: 'createdBy', nullable: false, })
+    createdBy: number;
+
+    @Column('int', { name: 'updatedBy', nullable: false, })
+    updatedBy: number;
 
 
     @Column({
@@ -32,10 +41,4 @@ export class UserProfileEntity {
         default: () => 'CURRENT_TIMESTAMP(6)',
     })
     updatedAt: Date;
-
-    @OneToOne((type) => UserEntity, (user) => user.profile)
-    @JoinColumn()
-    user: UserEntity;
-
-
 }

@@ -1,3 +1,4 @@
+import { EUserTypes } from "src/common/constants/common.enum";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 
@@ -11,9 +12,7 @@ export class UserTypeEntity {
     userType: string;
 
     @Column('int', { name: 'userTypeId', nullable: false, })
-    userTypeId: number;
-
-
+    userTypeId: EUserTypes;
 
     @Column({
         type: 'timestamp',

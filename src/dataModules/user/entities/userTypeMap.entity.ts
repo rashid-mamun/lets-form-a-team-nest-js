@@ -1,20 +1,19 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, CreateDateColumn, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('user-type-map')
 export class UserTypeMapEntity {
 
     @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-    id: number
+    id: number;
 
-    @Column('int', { name: 'userTypeId', nullable: false, })
+    @Column('int', { name: 'userTypeId' })
     userTypeId: number;
 
-    @Column('int', { name: 'userId', nullable: false, })
+    @Column('int', { name: 'userId', })
     userId: number;
 
-
-    @Column({
+    @CreateDateColumn({
         type: 'timestamp',
         name: 'createdAt',
         precision: 6,
@@ -24,10 +23,9 @@ export class UserTypeMapEntity {
 
     @Column('timestamp', {
         name: 'updatedAt',
-        precision: 6,
-        default: () => 'CURRENT_TIMESTAMP(6)',
+        default: () => 'CURRENT_TIMESTAMP',
+        onUpdate: 'CURRENT_TIMESTAMP'
     })
     updatedAt: Date;
-
 
 }

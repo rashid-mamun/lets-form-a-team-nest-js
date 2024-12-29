@@ -8,6 +8,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_CONFIG, AppConfigSchema } from './common/configs/app.config';
 import { DATA_SOURCE_OPTIONS } from './common/configs/dataSource.config';
+import { AuthModule } from './modules/auth/auth.module';
+import { SeederModule } from './modules/seeder/seeder.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -19,6 +22,9 @@ import { DATA_SOURCE_OPTIONS } from './common/configs/dataSource.config';
     ScheduleModule.forRoot(),
     TerminusModule,
     SharedModule,
+    AuthModule,
+    SeederModule,
+    UserModule,
    
   ],
   controllers: [AppController],
