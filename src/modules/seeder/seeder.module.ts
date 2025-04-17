@@ -5,8 +5,8 @@ import { DataModule } from 'src/dataModules/data.module';
 import { CentralLogger } from 'src/shared/loggerServices/centralLogger.service';
 
 @Module({
-  imports: [DataModule],
-  providers: [SeederService, CentralLogger],
-  controllers: [SeederController]
+    imports: [DataModule],
+    providers: [SeederService, CentralLogger],
+    controllers: [SeederController],
 })
-export class SeederModule { }
+export class SeederModule {}

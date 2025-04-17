@@ -5,8 +5,9 @@ import { DataModule } from 'src/dataModules/data.module';
 import { CentralLogger } from 'src/shared/loggerServices/centralLogger.service';
 
 @Module({
-  imports: [DataModule],
-  providers: [UserService, CentralLogger],
-  controllers: [UserController]
+    imports: [DataModule],
+    providers: [UserService, CentralLogger],
+    controllers: [UserController],
+    exports: [UserService],
 })
-export class UserModule { }
+export class UserModule {}

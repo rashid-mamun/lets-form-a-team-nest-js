@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 export class RefreshJwtGuard extends AuthGuard('jwt-refresh') {
     constructor(
         private readonly jwtService: JwtService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
     ) {
         super();
     }
