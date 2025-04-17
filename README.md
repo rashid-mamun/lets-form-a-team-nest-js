@@ -1,276 +1,340 @@
-# Let's Form a Team
+# Let's Form a Team - NestJS
+Welcome to **Let's Form a Team**, a powerful NestJS application for user authentication and role-based management. With support for Super Admin, Manager, and Employee roles, it offers secure JWT authentication, Redis token blacklisting, MySQL storage, and Dockerized deployment. Featuring Swagger documentation, rate limiting, and comprehensive testing, this project is built for scalability and ease of use.
 
-An Account Type-Based Authorization/Authentication System using NestJS, MySQL, and TypeORM
+## Features 🚀
+- **Secure Authentication**: JWT-based login with access and refresh tokens.
+- **Role-Based Access**: Manage Super Admin, Manager, and Employee roles.
+- **User Management**: Create, retrieve, and update user profiles.
+- **Redis Integration**: Blacklist tokens for secure logout.
+- **MySQL Database**: Store data with TypeORM for reliability.
+- **Swagger Documentation**: Explore APIs interactively at `/api-doc`.
+- **Rate Limiting**: Protect endpoints with throttling.
+- **Testing Suite**: Unit and E2E tests using Jest.
+- **Docker Support**: Simplified deployment with Docker Compose.
+- **Centralized Logging**: Track activity with Pino logger.
+- **Security First**: Password hashing (bcrypt), input validation (class-validator).
 
-## Project Setup
 
-### Setting up the Database
+## Prerequisites 📋
+Ensure you have the following installed:
+- **Node.js**: v18 or higher
+- **npm**: v9 or higher
+- **MySQL**: v8.0 or higher (local setup)
+- **Redis**: v7.0 or higher (local setup)
+- **Docker**: Latest version (optional, for containers)
+- **Git**: For cloning the repository
 
-1. Switch to the MySQL command line:
-    ```bash
-    mysql -u root -p
-    ```
-2. Create the database:
-    ```sql
-    CREATE DATABASE hr_hero_db;
-    ```
-3. Create a user with an encrypted password:
-    ```sql
-    CREATE USER 'super_admin'@'localhost' IDENTIFIED BY 'superadmin';
-    ```
-4. Grant all privileges to the created user:
-    ```sql
-    GRANT ALL PRIVILEGES ON hr_hero_db.* TO 'super_admin'@'localhost';
-    ```
-5. Flush the privileges to ensure they are saved and available in the current session:
-    ```sql
-    FLUSH PRIVILEGES;
-    ```
+## Installation 🔧
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/rashid-mamun/lets-form-a-team-nest-js
+   cd lets-form-a-team-nest-js
+   ```
 
-### Setting up the Project
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/rashid-mamun/lets-form-a-team-nest-js.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd lets-form-a-team-nest-js
-    ```
-3. Install dependencies:
-    ```bash
-    npm
-    ```
-4. Set up the environment variables. Create a `.env` file in the project root and add the following:
-    ```env
-    APP_ENV = development
-    APP_PORT = 3000
-    JWT_SECRET='jwt secret key'
-    JWT_ACCESS_TOKEN_EXPIRATION=15m
-    JWT_REFRESH_TOKEN_EXPIRATION=15d
-    DB_HOST=localhost
-    DB_PORT=3306
-    DB_USERNAME=root
-    DB_PASSWORD= root
-    DB_DATABASE= lets_form_a_team
-    DB_SYNC=true
-    ```
-5. Start the development server:
-    ```bash
-    npm run start:dev
-    ```
+## Environment Setup ⚙️
+1. **Copy Environment File**:
+   ```bash
+   cp .env.example .env
+   ```
 
-### Running the Seeder API
+2. **Configure `.env`**:
+   Update `.env` with your settings.
+3. **Secure Credentials**:
+   - Use strong, unique values for `JWT_SECRET`, `X_API_KEY`, and `SUPER_ADMIN_PASSWORD`.
 
-This API helps in seeding the initial requirements, which include creating specific account types and a super admin. This can be automated.
+## Running the Application ▶️
+### Getting Started
+1. **Start Development Server**:
+   ```bash
+   npm run start:dev
+   ```
+   The app runs at `http://localhost:3000`.
 
-**URL** (POST REQUEST): `http://127.0.0.1:3000/api/core/seeder`
+2. **Seed the Database**:
+   Initialize with a Super Admin user:
+   ```bash
+   curl -X POST http://localhost:3000/api/seeder
+   ```
 
-### Account Types
+3. **Explore APIs**:
+   Access Swagger documentation:
+   ```
+   http://localhost:3000/api-doc
+   ```
 
-- Super Admin: 1
-- Manager: 2
-- Employee: 3
+## Deployment with Docker 🐳
+1. **Start Containers**:
+   ```bash
+   docker-compose up -d
+   ```
 
-## Authentication and Authorization
+2. **Verify Containers**:
+   ```bash
+   docker ps
+   ```
 
-### Login
+3. **Seed Database**:
+   ```bash
+   curl -X POST http://localhost:3000/api/seeder
+   ```
 
-**URL**: `http://127.0.0.1:3000/api/core/login/`
+4. **Stop Containers**:
+   ```bash
+   docker-compose down
+   ```
 
-**Sample POST Request:**
-```json
-{
-    "username": "superAdmin",
-    "password": "super_admin1"
-}
-```
+**Notes**:
+- `Dockerfile`: Builds a production image.
+- `docker-compose.yml`: Configures app, MySQL, and Redis.
+- Ensure `.env` is set up for containerized environments.
 
-**Sample Response:**
-```json
-{
-    "message": "Successful",
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "profile": {
-        "id": 1,
-        "name": "Super Admin",
-        "contactNumber": "01837645524",
-        "email": "",
-        "createdAt": "2022-08-31T16:25:59.318Z",
-        "updatedAt": "2022-08-31T16:25:59.318Z",
-        "userId": 1,
-        "createdBy": null,
-        "updatedBy": null
-    }
-}
-```
+## API Endpoints 📖
+All endpoints (except health check) are prefixed with `/api`. Use Swagger UI (`http://localhost:3000/api-doc`) for interactive testing. Below are request and response samples.
 
-Use this access token in requests that require authorization. The Authorization header must be set like this:
-```
-Authorization: jwt <accessToken>
-```
+### Health Check
+- **Endpoint**: `GET /api`
+- **Description**: Verify application status.
+- **Request**:
+  ```bash
+  curl http://localhost:3000/api/
+  ```
+- **Success Response** (200 OK):
+  ```json
+  {
+    "success": true,
+    "messsage": "data fetched",
+    "data": "welcome to lets-form-a-team"
+  }
+  ```
 
-### Refresh Access Token
-
-**URL**: `http://127.0.0.1:3000/api/core/refresh-token/`
-
-**Sample POST Request:**
-```json
-{
-    "accessToken": "jwt <accessToken>"
-}
-```
-
-**Sample Response:**
-```json
-{
-    "status": 200,
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expires": "in 2 days"
-}
-```
-
-### Register Manager
-
-Only a super admin can add a manager.
-
-**URL**: `http://127.0.0.1:3000/api/core/register/user-profile/`
-
-**Sample POST Request:**
-```json
-{
-    "username": "manager1",
-    "password": "Manager1",
-    "name": "John Manager",
-    "contactNumber": "01789652243",
-    "email": "john@hrhero.com",
-    "accountType": 2
-}
-```
-
-**Sample Response:**
-```json
-{
-    "message": "Successful",
+### Authentication (`/api/auth`)
+#### 1. Signup
+- **Endpoint**: `POST /api/auth/signup`
+- **Description**: Register a new user.
+- **Request**:
+  ```bash
+  curl -X POST http://localhost:3000/api/auth/signup \
+    -H "Content-Type: application/json" \
+    -d '{
+      "username": "manager1",
+      "password": "manager123",
+      "name": "John Manager",
+      "email": "john@hrhero.com",
+      "contactNumber": "01789652243",
+      "userTypeId": 2,
+      "userId": 1
+    }'
+  ```
+- **Success Response** (201 Created):
+  ```json
+  {
+    "success": true,
     "data": {
-        "id": 1,
-        "username": "manager1",
-        "name": "John Manager",
-        "contactNumber": "01789652243",
-        "email": "john@hrhero.com",
-        "accountType": "Manager"
-    }
-}
-```
-
-### Register Employee
-
-A super admin or a manager can add an employee.
-
-**URL** (POST REQUEST): `http://127.0.0.1:3000/api/core/register/user-profile/`
-
-**Sample POST Request:**
-```json
-{
-    "username": "harryMaguire",
-    "password": "Defender1",
-    "name": "Harry Maguire",
-    "contactNumber": "01789353343",
-    "email": "harry@hrhero.com",
-    "accountType": 3
-}
-```
-
-**Sample Response:**
-```json
-{
-    "message": "Successful",
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    },
+    "message": "Request successful"
+  }
+  ```
+#### 2. Login
+- **Endpoint**: `POST /api/auth/login`
+- **Description**: Obtain access and refresh tokens.
+- **Request**:
+  ```bash
+  curl -X POST http://localhost:3000/api/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{
+      "username": "superAdmin",
+      "password": "your_secure_password"
+    }'
+  ```
+- **Success Response** (200 OK):
+  ```json
+  {
+    "success": true,
     "data": {
-        "id": 17,
-        "username": "harryMaguire",
-        "name": "Harry Maguire",
-        "contactNumber": "01789353343",
-        "email": "harry@hrhero.com",
-        "accountType": "Employee"
-    }
-}
-```
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    },
+    "message": "Request successful"
+  }
+  ```
 
-### Get All Users
+#### 3. Logout
+- **Endpoint**: `POST /api/auth/logout`
+- **Description**: Blacklist a refresh token (requires JWT).
+- **Request**:
+  ```bash
+  curl -X POST http://localhost:3000/api/auth/logout \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer <access_token>" \
+    -d '{"refresh_token": "<refresh_token>"}'
+  ```
+- **Success Response** (200 OK):
+  ```json
+  {
+    "success": true,
+    "data": null,
+    "message": "Request successful"
+  }
+  ```
 
-**URL** (GET REQUEST): `http://127.0.0.1:3000/api/core/get-users/`
+#### 4. Refresh Token
+- **Endpoint**: `POST /api/auth/refresh`
+- **Description**: Refresh an access token.
+- **Request**:
+  ```bash
+  curl -X POST http://localhost:3000/api/auth/refresh \
+    -H "Content-Type: application/json" \
+    -d '{"refresh_token": "<refresh_token>"}'
+  ```
+- **Success Response** (200 OK):
+  ```json
+  {
+    "success": true,
+    "data": {
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    },
+    "message": "Request successful"
+  }
+  ```
 
-**Sample Response:**
-```json
-{
-    "message": "Successful",
+### User Management (`/api/user`)
+**Note**: Requires JWT in `Authorization: Bearer <access_token>`.
+
+#### 1. Register User
+- **Endpoint**: `POST /api/user/register`
+- **Description**: Register a Manager or Employee (requires appropriate role).
+- **Request**:
+  ```bash
+  curl -X POST http://localhost:3000/api/user/register \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer <access_token>" \
+    -d '{
+      "username": "employee1",
+      "password": "employee123",
+      "name": "Jane Employee",
+      "email": "jane@hrhero.com",
+      "contactNumber": "01789652244",
+      "userTypeId": 3,
+      "userId": 1
+    }'
+  ```
+- **Success Response** (201 Created):
+  ```json
+  {
+    "success": true,
+    "data": {
+      "id": 2,
+      "username": "employee1",
+      "name": "Jane Employee",
+      "contactNumber": "01789652244",
+      "email": "jane@hrhero.com",
+      "userTypeId": 3
+    },
+    "message": "Request successful"
+  }
+  ```
+
+#### 2. Get All Users
+- **Endpoint**: `GET /api/user`
+- **Description**: List all users.
+- **Request**:
+  ```bash
+  curl -X GET http://localhost:3000/api/user \
+    -H "Authorization: Bearer <access_token>"
+  ```
+- **Success Response** (200 OK):
+  ```json
+  {
+    "success": true,
     "data": [
-        {
-            "id": 2,
-            "name": "Super Admin",
-            "contactNumber": "01837645524",
-            "email": "",
-            "createdAt": "2022-08-27T10:08:57.452Z",
-            "updatedAt": "2022-08-27T10:08:57.452Z",
-            "userId": 2,
-            "createdBy": null,
-            "updatedBy": null
-        },
-        {
-            "id": 1,
-            "name": "John Manager",
-            "contactNumber": "01789652243",
-            "email": "john@hrhero.com",
-            "createdAt": "2022-08-27T10:01:49.739Z",
-            "updatedAt": "2022-08-27T10:01:49.739Z",
-            "userId": 1,
-            "createdBy": 2,
-            "updatedBy": 2
-        },
-        {
-            "id": 16,
-            "name": "Scott Mctominay",
-            "contactNumber": "01789653343",
-            "email": "scott@hrhero.com",
-            "createdAt": "2022-08-27T12:20:31.003Z",
-            "updatedAt": "2022-08-27T12:20:31.003Z",
-            "userId": 24,
-            "createdBy": 2,
-            "updatedBy": 2
-        },
-        {
-            "id": 17,
-            "name": "Harry Maguire",
-            "contactNumber": "01789353343",
-            "email": "harry@hrhero.com",
-            "createdAt": "2022-08-27T12:23:02.423Z",
-            "updatedAt": "2022-08-27T12:23:02.423Z",
-            "userId": 25,
-            "createdBy": 2,
-            "updatedBy": 2
-        }
-    ]
-}
-```
-
-### Get User by ID
-
-**URL** (GET REQUEST): `http://127.0.0.1:3000/api/core/get-user/?id=1`
-
-**Sample Response:**
-```json
-{
-    "message": "Successful",
-    "data": {
+      {
         "id": 1,
-        "name": "John Manager",
-        "contactNumber": "01789652243",
-        "email": "john@hrhero.com",
-        "createdAt": "2022-08-27T10:01:49.739Z",
-        "updatedAt": "2022-08-27T10:01:49.739Z",
-        "userId": 1,
-        "createdBy": 2,
-        "updatedBy": 2
+        "username": "superAdmin",
+        "createdAt": "2025-04-17T10:00:00.000Z",
+        "updatedAt": "2025-04-17T10:00:00.000Z"
+      },
+      {
+        "id": 2,
+        "username": "employee1",
+        "createdAt": "2025-04-17T10:01:00.000Z",
+        "updatedAt": "2025-04-17T10:01:00.000Z"
+      }
+    ],
+    "message": "Request successful"
+  }
+  ```
+
+#### 3. Get User by ID
+- **Endpoint**: `GET /api/user/id?id=<id>`
+- **Description**: Retrieve a user by ID.
+- **Request**:
+  ```bash
+  curl -X GET http://localhost:3000/api/user/id?id=1 \
+    -H "Authorization: Bearer <access_token>"
+  ```
+- **Success Response** (200 OK):
+  ```json
+  {
+    "success": true,
+    "data": {
+      "id": 1,
+      "username": "superAdmin",
+      "createdAt": "2025-04-17T10:00:00.000Z",
+      "updatedAt": "2025-04-17T10:00:00.000Z"
+    },
+    "message": "Request successful"
+  }
+  ```
+
+### Seeder (`/api/seeder`)
+#### Seed Database
+- **Endpoint**: `POST /api/seeder`
+- **Description**: Initialize database with user types and Super Admin.
+- **Request**:
+  ```bash
+  curl -X POST http://localhost:3000/api/seeder
+  ```
+- **Success Response** (200 OK):
+  ```json
+  {
+    "success": true,
+    "messsage": "Database seeded successfully",
+    "data": {
+        "data": true
     }
-}
-```
+  }
+  ```
+
+**Note**: For protected endpoints (`/api/user/*`, `/api/auth/logout`), obtain an `access_token` via `/api/auth/login` or `/api/auth/signup`. Replace `<access_token>` and `<refresh_token>` with actual tokens.
+
+## Testing ✅
+Run unit and end-to-end (E2E) tests with Jest.
+
+1. **All Tests**:
+   ```bash
+   npm run test
+   ```
+
+2. **E2E Tests**:
+   ```bash
+   npm run test:e2e
+   ```
+
+3. **Coverage Report**:
+   ```bash
+   npm run test:cov
+   ```
+
+4. **Test Files**:
+   - Unit: `test/auth.service.spec.ts`
+   - E2E: `test/auth.e2e-spec.ts`
+
+**Note**: Ensure MySQL and Redis are running for E2E tests.
