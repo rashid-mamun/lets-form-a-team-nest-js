@@ -5,4 +5,4 @@ export const PINO_CONFIG_OPTIONS = {
             colorize: true,
         },
     },
-}
+};

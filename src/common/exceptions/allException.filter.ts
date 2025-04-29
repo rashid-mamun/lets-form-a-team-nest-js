@@ -7,7 +7,10 @@ import { CentralLogger } from '../../shared/loggerServices/centralLogger.service
 
 @Catch()
 export class AllExceptionsFilter<T> implements ExceptionFilter {
-    constructor(private config: ConfigService,  private readonly logger: CentralLogger) {}
+    constructor(
+        private config: ConfigService,
+        private readonly logger: CentralLogger,
+    ) {}
     catch(exception: T, host: ArgumentsHost): any {
         const ctx = host.switchToHttp();
         const res = ctx.getResponse<Response>();
@@ -60,8 +63,7 @@ export class AllExceptionsFilter<T> implements ExceptionFilter {
                 message,
                 errors,
             };
-
-           
+            console.log(error);
             this.logger.error(`A global error message occurred: ${error.message}`);
             this.logger.error(`A global exception occurred. Trace: ${(exception as Error).stack}`);
             res.status(status_code).json(error);

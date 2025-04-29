@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 import pino from 'pino';
 import { PINO_CONFIG_OPTIONS } from '../../common/configs/pinoLogger.config';
 const logger = pino(PINO_CONFIG_OPTIONS);

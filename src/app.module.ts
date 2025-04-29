@@ -13,25 +13,24 @@ import { SeederModule } from './modules/seeder/seeder.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      load: [() => ({ ...APP_CONFIG, isGlobal: true })],
-      validationSchema: AppConfigSchema,
-    }),
-    TypeOrmModule.forRoot(DATA_SOURCE_OPTIONS),
-    ScheduleModule.forRoot(),
-    TerminusModule,
-    SharedModule,
-    AuthModule,
-    SeederModule,
-    UserModule,
-   
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [
+        ConfigModule.forRoot({
+            load: [() => ({ ...APP_CONFIG, isGlobal: true })],
+            validationSchema: AppConfigSchema,
+        }),
+        TypeOrmModule.forRoot(DATA_SOURCE_OPTIONS),
+        ScheduleModule.forRoot(),
+        TerminusModule,
+        SharedModule,
+        AuthModule,
+        SeederModule,
+        UserModule,
+    ],
+    controllers: [AppController],
+    providers: [AppService],
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    // consumer.apply(HeaderKeyMiddleware).forRoutes({ path: '/search/*', method: RequestMethod.ALL });
-  }
+    configure(consumer: MiddlewareConsumer) {
+        // consumer.apply(HeaderKeyMiddleware).forRoutes({ path: '/search/*', method: RequestMethod.ALL });
+    }
 }

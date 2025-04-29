@@ -1,82 +1,69 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserEntityService } from 'src/dataModules/user/user.service';
+import { UserService } from '../user/user.service';
 import { TokenService } from './token.service';
+import { CreateUserDto } from 'src/common/dtos/create-user.dto';
+import { LoginUserDto } from 'src/common/dtos/login-user.dto';
+import { RedisService } from 'src/shared/redis/redis.service';
+import { ApiResponseMessages } from 'src/common/constants/common.enum';
 
 @Injectable()
 export class AuthService {
-  private tokenBlacklist: Set<string> = new Set();
+    constructor(
+        private readonly userService: UserService,
+        private readonly tokenService: TokenService,
+        private readonly redisService: RedisService,
+    ) {}
 
-  constructor(
-    private readonly userService: UserEntityService,
-    private readonly tokenService: TokenService,
-  ) { }
-
-  /**
-   * Registers a new user and returns access and refresh tokens.
-   * @param createUserDto - Data Transfer Object for creating a user.
-   * @returns An object containing access and refresh tokens.
-   */
-  async registerUser(createUserDto: any): Promise<{ access_token: string, refresh_token: string }> {
-    console.log({createUserDto});
-    const user = await this.userService.insertUser(createUserDto);
-    const payload = { username: user.username, sub: user.id };
-
-    return {
-      access_token: this.tokenService.generateAccessToken(payload),
-      refresh_token: this.tokenService.generateRefreshToken(payload),
-    };
-  }
-
-  /**
-   * Logs in a user and returns access and refresh tokens.
-   * @param loginUserDto - Data Transfer Object for logging in a user.
-   * @returns An object containing access and refresh tokens.
-   */
-  async login(loginUserDto: any): Promise<{ access_token: string, refresh_token: string }> {
-    const user = await this.userService.validateUser(loginUserDto.username, loginUserDto.password);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+    async registerUser(createUserDto: CreateUserDto): Promise<{ access_token: string; refresh_token: string; message: string }> {
+        try {
+            const user = await this.userService.registerUser(createUserDto);
+            const payload = { username: user.username, sub: user.id };
+            return {
+                message: 'User registered successfully',
+                access_token: this.tokenService.generateAccessToken(payload),
+                refresh_token: this.tokenService.generateRefreshToken(payload),
+            };
+        } catch (error) {
+            // console.log(error);
+            throw new UnauthorizedException(error.message || ApiResponseMessages.UNAUTHORIZED_ACCESS);
+        }
     }
 
-    const payload = { username: user.username, sub: user.id };
-
-    return {
-      access_token: this.tokenService.generateAccessToken(payload),
-      refresh_token: this.tokenService.generateRefreshToken(payload),
-    };
-  }
-
-  /**
-   * Logs out a user by adding the token to the blacklist.
-   * @param token - The token to be blacklisted.
-   */
-  async logout(token: string): Promise<void> {
-    this.tokenBlacklist.add(token);
-  }
-
-  /**
-   * Refreshes the access token using the provided refresh token.
-   * @param refreshToken - The refresh token.
-   * @returns An object containing new access and refresh tokens.
-   */
-  async refreshToken(refreshToken: string): Promise<{ access_token: string, refresh_token: string }> {
-    if (this.tokenBlacklist.has(refreshToken)) {
-      throw new UnauthorizedException('Invalid token');
+    async login(loginUserDto: LoginUserDto): Promise<{ access_token: string; refresh_token: string }> {
+        console.log('loginUserDto', loginUserDto);
+        const user = await this.userService.validateUser(loginUserDto.username, loginUserDto.password);
+        if (!user) {
+            throw new UnauthorizedException(ApiResponseMessages.INVALID_CREDENTIALS);
+        }
+        const payload = { username: user.username, sub: user.id };
+        return {
+            access_token: this.tokenService.generateAccessToken(payload),
+            refresh_token: this.tokenService.generateRefreshToken(payload),
+        };
     }
 
-    const decoded = this.tokenService.verifyToken(refreshToken);
-    const payload = { username: decoded.username, sub: decoded.sub };
+    async logout(refreshToken: string): Promise<void> {
+        try {
+            await this.redisService.set(`blacklist:${refreshToken}`, 'true', 15 * 24 * 60 * 60); // 15 days
+        } catch (error) {
+            throw new Error('Failed to blacklist token');
+        }
+    }
 
-    return {
-      access_token: this.tokenService.generateAccessToken(payload),
-      refresh_token: this.tokenService.generateRefreshToken(payload),
-    };
-  }
-  async validateUser(username: string, pass: string): Promise<any> {
-    return this.userService.validateUser(username, pass);
-  }
-
-
+    async refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
+        try {
+            const isBlacklisted = await this.redisService.get(`blacklist:${refreshToken}`);
+            if (isBlacklisted) {
+                throw new UnauthorizedException(ApiResponseMessages.INVALID_TOKEN);
+            }
+            const decoded = this.tokenService.verifyToken(refreshToken);
+            const payload = { username: decoded.username, sub: decoded.sub };
+            return {
+                access_token: this.tokenService.generateAccessToken(payload),
+                refresh_token: this.tokenService.generateRefreshToken(payload),
+            };
+        } catch (error) {
+            throw new UnauthorizedException(ApiResponseMessages.INVALID_TOKEN);
+        }
+    }
 }
-
-

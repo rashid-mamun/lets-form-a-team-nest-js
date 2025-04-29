@@ -1,131 +1,63 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { UserEntity } from "./entities/user.entity";
-import { DeleteResult, Repository } from "typeorm";
-import { UserProfileEntity } from "./entities/userProfile.entity";
-import { IPaginatedResult, ISearchOptions } from "src/common/interfaces/common.interface";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from './entities/user.entity';
+import { UserProfileEntity } from './entities/userProfile.entity';
+import { UserTypeEntity } from './entities/userType.entity';
+import { UserTypeMapEntity } from './entities/userTypeMap.entity';
 import * as bcrypt from 'bcrypt';
-import { UserTypeEntity } from "./entities/userType.entity";
-import { UserTypeMapEntity } from "./entities/userTypeMap.entity";
-
-
 
 @Injectable()
 export class UserEntityService {
     constructor(
         @InjectRepository(UserEntity)
-        private readonly userRepo: Repository<UserEntity>,
-
+        private readonly userRepository: Repository<UserEntity>,
         @InjectRepository(UserProfileEntity)
-        private readonly userProfileRepo: Repository<UserProfileEntity>,
-
+        private readonly userProfileRepository: Repository<UserProfileEntity>,
         @InjectRepository(UserTypeEntity)
-        private readonly userTypeRepo: Repository<UserTypeEntity>,
-
+        private readonly userTypeRepository: Repository<UserTypeEntity>,
         @InjectRepository(UserTypeMapEntity)
-        private readonly userTypeMapRepo: Repository<UserTypeMapEntity>,
-    ) { }
-    async getUser(searchOptions: any): Promise<UserEntity | null> {
-        const { filters } = searchOptions;
-        return await this.userRepo.findOne({
-            where: filters,
-        });
+        private readonly userTypeMapRepository: Repository<UserTypeMapEntity>,
+    ) {}
+
+    async getUser(params: { filters: Partial<UserEntity> }): Promise<UserEntity | null> {
+        return this.userRepository.findOne({ where: params.filters });
     }
-    async insertUser(user: any): Promise<UserEntity> {
-        return await this.userRepo.save(user);
+
+    async getUsers(params: { filters?: Partial<UserEntity> }): Promise<{ items: UserEntity[] }> {
+        const items = await this.userRepository.find({ where: params.filters });
+        return { items };
     }
-    async insertUsers(users: UserEntity[]): Promise<UserEntity[]> {
-        return await this.userRepo.save(users);
+
+    async getUserType(params: { filters: Partial<UserTypeEntity> }): Promise<UserTypeEntity | null> {
+        return this.userTypeRepository.findOne({ where: params.filters });
     }
-    async getUsers(searchOptions: ISearchOptions): Promise<IPaginatedResult<UserEntity>> {
-        const { filters, pageSize, page } = searchOptions;
-        const skip = pageSize && page ? pageSize * (page - 1) : 0;
-        const totalRecords = await this.userRepo.count(filters);
-        const result = await this.userRepo.find({
-            where: filters,
-            skip,
-            take: pageSize,
-        });
-        return {
-            items: result,
-            pagination: {
-                currentPage: page,
-                pageSize,
-                totalRecords: totalRecords,
-            },
-        } as IPaginatedResult<UserEntity>;
+
+    async getUserProfile(params: { filters: Partial<UserProfileEntity> }): Promise<UserProfileEntity | null> {
+        return this.userProfileRepository.findOne({ where: params.filters });
     }
-    async updateUser(searchOptions: ISearchOptions, updatedData: Partial<UserEntity>): Promise<Partial<UserEntity>> {
-        const { filters } = searchOptions;
-        if (!filters) {
-            throw new NotFoundException('Invalid search options');
-        }
-        const updateResult = await this.userRepo.update(filters, updatedData);
-        if (updateResult.affected) {
-            return updatedData;
-        }
-        throw new NotFoundException('No matching record found for update');
+
+    async insertUser(params: { username: string; password: string }): Promise<UserEntity> {
+        const hashedPassword = await bcrypt.hash(params.password, 10);
+        const user = this.userRepository.create({ ...params, password: hashedPassword });
+        return this.userRepository.save(user);
     }
-    async deleteUser(searchOptions: ISearchOptions): Promise<DeleteResult> {
-        const { filters } = searchOptions;
-        if (!filters) {
-            throw new NotFoundException('Invalid search options');
-        }
-        const deleteResult = await this.userRepo.delete(filters);
-        if (deleteResult.affected) {
-            return deleteResult;
-        }
-        throw new NotFoundException('No matching record found for deletion');
+
+    async insertUserProfile(params: { name: string; email: string; contactNumber: string; userId: number; createdBy: number; updatedBy: number }): Promise<UserProfileEntity> {
+        const profile = this.userProfileRepository.create(params);
+        return this.userProfileRepository.save(profile);
     }
-    async validateUser(username: string, pass: string): Promise<any> {
-        const user = await this.userRepo.findOne({ where: { username } });
-        if (user && await bcrypt.compare(pass, user.password)) {
-            const { password, ...result } = user;
-            return result;
+
+    async insertUserTypeMap(params: { userId: number; userTypeId: number }): Promise<UserTypeMapEntity> {
+        const map = this.userTypeMapRepository.create(params);
+        return this.userTypeMapRepository.save(map);
+    }
+
+    async validateUser(username: string, password: string): Promise<UserEntity | null> {
+        const user = await this.userRepository.findOne({ where: { username } });
+        if (user && (await bcrypt.compare(password, user.password))) {
+            return user;
         }
         return null;
-
     }
-
-
-    // Methods for UserProfileEntity...
-    async insertUserProfile(userProfile: Partial<UserProfileEntity>): Promise<UserProfileEntity> {
-        return await this.userProfileRepo.save(userProfile);
-    }
-    async insertUserProfiles(userProfiles: Partial<UserProfileEntity>[]): Promise<UserProfileEntity[]> {
-        return await this.userProfileRepo.save(userProfiles);
-    }
-    async getUserProfile(searchOptions: ISearchOptions): Promise<UserProfileEntity | null> {
-        const { filters } = searchOptions;
-        return await this.userProfileRepo.findOne({ where: filters });
-    }
-
-
-    // Methods for UserTypeEntity.
-    async getUserType(searchOptions: ISearchOptions): Promise<UserTypeEntity | null> {
-        const { filters } = searchOptions;
-        return await this.userTypeRepo.findOne({ where: filters });
-    }
-    async insertUserType(userType: UserTypeEntity): Promise<UserTypeEntity> {
-        return await this.userTypeRepo.save(userType);
-    }
-
-    async insertUserTypes(userTypes: UserTypeEntity[]): Promise<UserTypeEntity[]> {
-        return await this.userTypeRepo.save(userTypes);
-    }
-
-    // Methods for UserTypeMapEntity...
-    async getUserTypeMap(searchOptions: ISearchOptions): Promise<UserTypeMapEntity | null> {
-        const { filters } = searchOptions;
-        return await this.userTypeMapRepo.findOne({ where: filters });
-    }
-
-    async insertUserTypeMap(userTypeMap: Partial<UserTypeMapEntity>): Promise<UserTypeMapEntity | null> {
-        return await this.userTypeMapRepo.save(userTypeMap);
-    }
-
-    async insertUserTypeMaps(userTypeMaps: UserTypeMapEntity[]): Promise<UserTypeMapEntity[]> {
-        return await this.userTypeMapRepo.save(userTypeMaps);
-    }
-
 }
