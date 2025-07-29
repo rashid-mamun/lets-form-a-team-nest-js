@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, UseInterceptors, ClassSerializerInterceptor, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/common/dtos/login-user.dto';
 import { CreateUserDto } from 'src/common/dtos/create-user.dto';
@@ -17,11 +17,15 @@ export class AuthController {
 
     @Post('signup')
     @HttpCode(HttpStatus.CREATED)
+    @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Register a new user' })
     @ApiResponse({ status: 201, description: 'User registered successfully' })
     @ApiResponse({ status: 400, type: CommonErrorResponse, description: 'Invalid input' })
-    async signup(@Body() createUserDto: CreateUserDto) {
-        return this.authService.registerUser(createUserDto);
+    @ApiResponse({ status: 401, type: CommonErrorResponse, description: 'Unauthorized' })
+    @ApiResponse({ status: 403, type: CommonErrorResponse, description: 'Forbidden - insufficient permissions' })
+    async signup(@Body() createUserDto: CreateUserDto, @Request() req: any) {
+        const requestingUserId = req.user?.sub; 
+        return this.authService.registerUser(createUserDto, requestingUserId);
     }
 
     @Post('login')
@@ -39,6 +43,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Log out a user' })
     @ApiResponse({ status: 200, description: 'Logout successful' })
+    @ApiResponse({ status: 401, type: CommonErrorResponse, description: 'Unauthorized' })
     async logout(@Body('refresh_token') refreshToken: string) {
         return this.authService.logout(refreshToken);
     }

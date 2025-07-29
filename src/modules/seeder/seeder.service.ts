@@ -7,7 +7,7 @@ import { UserTypeMapEntity } from 'src/dataModules/user/entities/userTypeMap.ent
 import { UserEntityService } from 'src/dataModules/user/user.service';
 import { CentralLogger } from 'src/shared/loggerServices/centralLogger.service';
 import { DataSource, QueryRunner } from 'typeorm';
-import { APP_CONFIG } from 'src/common/configs/app.config';
+
 import * as bcrypt from 'bcrypt';
 import { ApiResponseMessages } from 'src/common/constants/common.enum';
 
@@ -73,6 +73,7 @@ export class SeederService {
     private async createSuperAdminUser(queryRunner: QueryRunner): Promise<void> {
         const superAdminUsername = 'superAdmin';
         const superAdminEmail = 'superadmin@hrhero.com';
+        const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || 'testPassword123!';
 
         const existingUser = await queryRunner.manager.findOne(UserEntity, {
             where: { username: superAdminUsername },
@@ -83,7 +84,7 @@ export class SeederService {
             return;
         }
 
-        const hashedPassword = await bcrypt.hash(APP_CONFIG.SUPER_ADMIN_PASSWORD, 10);
+        const hashedPassword = await bcrypt.hash(superAdminPassword, 10);
 
         const user = queryRunner.manager.create(UserEntity, {
             username: superAdminUsername,
@@ -100,7 +101,7 @@ export class SeederService {
             createdBy: savedUser.id,
             updatedBy: savedUser.id,
         });
-        const savedProfile = await queryRunner.manager.save(profile);
+        const _savedProfile = await queryRunner.manager.save(profile);
         this.logger.info('Super Admin profile created');
 
         const userType = await queryRunner.manager.findOne(UserTypeEntity, {
@@ -111,8 +112,8 @@ export class SeederService {
         }
 
         const typeMap = queryRunner.manager.create(UserTypeMapEntity, {
-            userId: savedProfile.id,
-            userTypeId: userType.id,
+            userId: savedUser.id, 
+            userTypeId: userType.userTypeId, 
         });
         await queryRunner.manager.save(typeMap);
         this.logger.info('Super Admin user type mapping created');

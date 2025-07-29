@@ -10,6 +10,10 @@ export const APP_CONFIG = {
     },
     X_API_KEY: process.env.X_API_KEY,
     X_API_ACCEPT_TTL: parseInt(process.env.X_API_ACCEPT_TTL || '30000', 10),
+    JWT_SECRET: process.env.JWT_SECRET,
+    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+    JWT_ACCESS_TOKEN_EXPIRATION: process.env.JWT_ACCESS_TOKEN_EXPIRATION || '15m',
+    JWT_REFRESH_TOKEN_EXPIRATION: process.env.JWT_REFRESH_TOKEN_EXPIRATION || '7d',
     TYPE_ORM: {
         HOST: process.env.DB_HOST || 'localhost',
         PORT: parseInt(process.env.DB_PORT || '3306', 10),
@@ -40,6 +44,10 @@ export const AppConfigSchema = Joi.object({
     }),
     X_API_KEY: Joi.string().required(),
     X_API_ACCEPT_TTL: Joi.number().default(30000),
+    JWT_SECRET: Joi.string().required(),
+    JWT_REFRESH_SECRET: Joi.string().optional(),
+    JWT_ACCESS_TOKEN_EXPIRATION: Joi.string().default('15m'),
+    JWT_REFRESH_TOKEN_EXPIRATION: Joi.string().default('7d'),
     TYPE_ORM: Joi.object({
         HOST: Joi.string().required(),
         PORT: Joi.number().required(),

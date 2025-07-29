@@ -1,4 +1,4 @@
-import { Controller, Post, HttpStatus, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Post, InternalServerErrorException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SeederService } from './seeder.service';
 import { CentralLogger } from 'src/shared/loggerServices/centralLogger.service';
