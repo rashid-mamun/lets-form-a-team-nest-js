@@ -1,340 +1,431 @@
-# Let's Form a Team - NestJS
-Welcome to **Let's Form a Team**, a powerful NestJS application for user authentication and role-based management. With support for Super Admin, Manager, and Employee roles, it offers secure JWT authentication, Redis token blacklisting, MySQL storage, and Dockerized deployment. Featuring Swagger documentation, rate limiting, and comprehensive testing, this project is built for scalability and ease of use.
+# Let's Form A Team - NestJS Backend
 
-## Features 🚀
-- **Secure Authentication**: JWT-based login with access and refresh tokens.
-- **Role-Based Access**: Manage Super Admin, Manager, and Employee roles.
-- **User Management**: Create, retrieve, and update user profiles.
-- **Redis Integration**: Blacklist tokens for secure logout.
-- **MySQL Database**: Store data with TypeORM for reliability.
-- **Swagger Documentation**: Explore APIs interactively at `/api-doc`.
-- **Rate Limiting**: Protect endpoints with throttling.
-- **Testing Suite**: Unit and E2E tests using Jest.
-- **Docker Support**: Simplified deployment with Docker Compose.
-- **Centralized Logging**: Track activity with Pino logger.
-- **Security First**: Password hashing (bcrypt), input validation (class-validator).
+## 📋 Description
+
+A robust **Account type-based authentication and authorization system** built with NestJS. This application provides a complete user management system with role-based access control, featuring Super Admin, Manager, and Employee user types. The system includes JWT-based authentication, comprehensive API endpoints, and extensive testing coverage.
+
+## ✨ Features
+
+### 🔐 Authentication & Authorization
+- **JWT-based authentication** with access and refresh tokens
+- **Role-based access control** (Super Admin, Manager, Employee)
+- **Token blacklisting** for secure logout
+- **Password hashing** with bcrypt
+- **Rate limiting** for API protection
+
+### 👥 User Management
+- **User registration** with role assignment
+- **User profile management** (name, email, contact)
+- **User type mapping** and permissions
+- **Comprehensive validation** and error handling
+
+### 🗄️ Database & Infrastructure
+- **MySQL database** with TypeORM
+- **Redis caching** for token management
+- **Database seeding** for initial setup
+- **Transaction management** for data integrity
 
 
-## Prerequisites 📋
-Ensure you have the following installed:
-- **Node.js**: v18 or higher
-- **npm**: v9 or higher
-- **MySQL**: v8.0 or higher (local setup)
-- **Redis**: v7.0 or higher (local setup)
-- **Docker**: Latest version (optional, for containers)
-- **Git**: For cloning the repository
+## 🛠️ Technologies Used
 
-## Installation 🔧
-1. **Clone the Repository**:
+### Backend Framework
+- **NestJS** - Progressive Node.js framework
+- **TypeScript** - Type-safe JavaScript
+- **Express** - Web application framework
+
+### Database & Caching
+- **MySQL** - Relational database
+- **TypeORM** - Object-Relational Mapping
+- **Redis** - In-memory data store
+
+### Authentication & Security
+- **Passport.js** - Authentication middleware
+- **JWT** - JSON Web Tokens
+- **bcrypt** - Password hashing
+- **class-validator** - Input validation
+
+### Development Tools
+- **Jest** - Testing framework
+- **Swagger** - API documentation
+- **ESLint & Prettier** - Code formatting
+- **Husky** - Git hooks
+
+## 🚀 Installation
+
+### Prerequisites
+- Node.js (v18 or higher)
+- MySQL (v8.0 or higher)
+- Redis (v6.0 or higher)
+- npm or yarn
+
+### Step-by-Step Setup
+
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/rashid-mamun/lets-form-a-team-nest-js
-   cd lets-form-a-team-nest-js
+    git clone https://github.com/rashid-mamun/lets-form-a-team-nest-js
+    cd lets-form-a-team-nest-js
    ```
 
-2. **Install Dependencies**:
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-## Environment Setup ⚙️
-1. **Copy Environment File**:
+3. **Set up environment variables**
    ```bash
    cp .env.example .env
+   # Edit .env with your configuration
    ```
 
-2. **Configure `.env`**:
-   Update `.env` with your settings.
-3. **Secure Credentials**:
-   - Use strong, unique values for `JWT_SECRET`, `X_API_KEY`, and `SUPER_ADMIN_PASSWORD`.
+4. **Set up database**
+   ```bash
+   # Create MySQL database
+   mysql -u root -p
+   CREATE DATABASE lets_form_a_team;
+   ```
 
-## Running the Application ▶️
-### Getting Started
-1. **Start Development Server**:
+5. **Start Redis server**
+   ```bash
+   redis-server
+   ```
+
+6. **Run database migrations (if any)**
+   ```bash
+   npm run migration:run
+   ```
+
+7. **Seed the database**
    ```bash
    npm run start:dev
-   ```
-   The app runs at `http://localhost:3000`.
-
-2. **Seed the Database**:
-   Initialize with a Super Admin user:
-   ```bash
-   curl -X POST http://localhost:3000/api/seeder
+   # Then make a POST request to /seeder endpoint
    ```
 
-3. **Explore APIs**:
-   Access Swagger documentation:
-   ```
-   http://localhost:3000/api-doc
-   ```
+## 🔧 Environment Variables
 
-## Deployment with Docker 🐳
-1. **Start Containers**:
-   ```bash
-   docker-compose up -d
-   ```
+Create a `.env` file in the root directory with the following variables:
 
-2. **Verify Containers**:
-   ```bash
-   docker ps
-   ```
+```env
+# Application
+APP_ENV=development
+APP_PORT=3000
 
-3. **Seed Database**:
-   ```bash
-   curl -X POST http://localhost:3000/api/seeder
-   ```
+# Database
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=super_admin
+DB_PASSWORD=superadmin
+DB_DATABASE=lets_form_a_team
+DB_SYNC=true
+DB_DEBUG=false
 
-4. **Stop Containers**:
-   ```bash
-   docker-compose down
-   ```
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
 
-**Notes**:
-- `Dockerfile`: Builds a production image.
-- `docker-compose.yml`: Configures app, MySQL, and Redis.
-- Ensure `.env` is set up for containerized environments.
+# JWT
+JWT_SECRET=your-super-secret-jwt-key
+JWT_REFRESH_SECRET=your-super-secret-refresh-key
+JWT_ACCESS_TOKEN_EXPIRATION=15m
+JWT_REFRESH_TOKEN_EXPIRATION=7d
 
-## API Endpoints 📖
-All endpoints (except health check) are prefixed with `/api`. Use Swagger UI (`http://localhost:3000/api-doc`) for interactive testing. Below are request and response samples.
+# Security
+X_API_KEY=your-api-key
+X_API_ACCEPT_TTL=30000
+SUPER_ADMIN_PASSWORD=secure_default_password
 
-### Health Check
-- **Endpoint**: `GET /api`
-- **Description**: Verify application status.
-- **Request**:
-  ```bash
-  curl http://localhost:3000/api/
-  ```
-- **Success Response** (200 OK):
-  ```json
-  {
-    "success": true,
-    "messsage": "data fetched",
-    "data": "welcome to lets-form-a-team"
+# Rate Limiting
+THROTTLE_TTL=60
+THROTTLE_LIMIT=10
+```
+
+## 🏃‍♂️ Running the Project
+
+### Development Mode
+```bash
+npm run start:dev
+```
+
+### Production Mode
+```bash
+npm run build
+npm run start:prod
+```
+
+### Debug Mode
+```bash
+npm run start:debug
+```
+
+## 📚 API Endpoints
+
+### 🔐 Authentication Endpoints
+
+#### POST `/auth/login`
+Login with username and password.
+
+**Request:**
+```json
+{
+  "username": "superAdmin",
+  "password": "testPassword123!"
+}
+```
+
+**Response:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "username": "superAdmin",
+    "roles": [1]
   }
-  ```
+}
+```
 
-### Authentication (`/api/auth`)
-#### 1. Signup
-- **Endpoint**: `POST /api/auth/signup`
-- **Description**: Register a new user.
-- **Request**:
-  ```bash
-  curl -X POST http://localhost:3000/api/auth/signup \
-    -H "Content-Type: application/json" \
-    -d '{
-      "username": "manager1",
-      "password": "manager123",
-      "name": "John Manager",
-      "email": "john@hrhero.com",
-      "contactNumber": "01789652243",
-      "userTypeId": 2,
-      "userId": 1
-    }'
-  ```
-- **Success Response** (201 Created):
-  ```json
-  {
-    "success": true,
-    "data": {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    },
-    "message": "Request successful"
-  }
-  ```
-#### 2. Login
-- **Endpoint**: `POST /api/auth/login`
-- **Description**: Obtain access and refresh tokens.
-- **Request**:
-  ```bash
-  curl -X POST http://localhost:3000/api/auth/login \
-    -H "Content-Type: application/json" \
-    -d '{
-      "username": "superAdmin",
-      "password": "your_secure_password"
-    }'
-  ```
-- **Success Response** (200 OK):
-  ```json
-  {
-    "success": true,
-    "data": {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    },
-    "message": "Request successful"
-  }
-  ```
+#### POST `/auth/logout`
+Logout and blacklist refresh token.
 
-#### 3. Logout
-- **Endpoint**: `POST /api/auth/logout`
-- **Description**: Blacklist a refresh token (requires JWT).
-- **Request**:
-  ```bash
-  curl -X POST http://localhost:3000/api/auth/logout \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <access_token>" \
-    -d '{"refresh_token": "<refresh_token>"}'
-  ```
-- **Success Response** (200 OK):
-  ```json
-  {
-    "success": true,
-    "data": null,
-    "message": "Request successful"
-  }
-  ```
+**Request:**
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
-#### 4. Refresh Token
-- **Endpoint**: `POST /api/auth/refresh`
-- **Description**: Refresh an access token.
-- **Request**:
-  ```bash
-  curl -X POST http://localhost:3000/api/auth/refresh \
-    -H "Content-Type: application/json" \
-    -d '{"refresh_token": "<refresh_token>"}'
-  ```
-- **Success Response** (200 OK):
-  ```json
-  {
-    "success": true,
-    "data": {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    },
-    "message": "Request successful"
-  }
-  ```
+**Response:**
+```json
+{
+  "message": "Logout successful"
+}
+```
 
-### User Management (`/api/user`)
-**Note**: Requires JWT in `Authorization: Bearer <access_token>`.
+#### POST `/auth/refresh`
+Refresh access token using refresh token.
 
-#### 1. Register User
-- **Endpoint**: `POST /api/user/register`
-- **Description**: Register a Manager or Employee (requires appropriate role).
-- **Request**:
-  ```bash
-  curl -X POST http://localhost:3000/api/user/register \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <access_token>" \
-    -d '{
-      "username": "employee1",
-      "password": "employee123",
-      "name": "Jane Employee",
-      "email": "jane@hrhero.com",
-      "contactNumber": "01789652244",
-      "userTypeId": 3,
-      "userId": 1
-    }'
-  ```
-- **Success Response** (201 Created):
-  ```json
-  {
-    "success": true,
-    "data": {
-      "id": 2,
-      "username": "employee1",
-      "name": "Jane Employee",
-      "contactNumber": "01789652244",
-      "email": "jane@hrhero.com",
-      "userTypeId": 3
-    },
-    "message": "Request successful"
-  }
-  ```
+**Request:**
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
-#### 2. Get All Users
-- **Endpoint**: `GET /api/user`
-- **Description**: List all users.
-- **Request**:
-  ```bash
-  curl -X GET http://localhost:3000/api/user \
-    -H "Authorization: Bearer <access_token>"
-  ```
-- **Success Response** (200 OK):
-  ```json
-  {
-    "success": true,
-    "data": [
-      {
-        "id": 1,
-        "username": "superAdmin",
-        "createdAt": "2025-04-17T10:00:00.000Z",
-        "updatedAt": "2025-04-17T10:00:00.000Z"
-      },
-      {
-        "id": 2,
-        "username": "employee1",
-        "createdAt": "2025-04-17T10:01:00.000Z",
-        "updatedAt": "2025-04-17T10:01:00.000Z"
-      }
-    ],
-    "message": "Request successful"
-  }
-  ```
+**Response:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
-#### 3. Get User by ID
-- **Endpoint**: `GET /api/user/id?id=<id>`
-- **Description**: Retrieve a user by ID.
-- **Request**:
-  ```bash
-  curl -X GET http://localhost:3000/api/user/id?id=1 \
-    -H "Authorization: Bearer <access_token>"
-  ```
-- **Success Response** (200 OK):
-  ```json
-  {
-    "success": true,
-    "data": {
-      "id": 1,
-      "username": "superAdmin",
-      "createdAt": "2025-04-17T10:00:00.000Z",
-      "updatedAt": "2025-04-17T10:00:00.000Z"
-    },
-    "message": "Request successful"
-  }
-  ```
+#### POST `/auth/signup`
+Register a new user (requires authentication).
 
-### Seeder (`/api/seeder`)
-#### Seed Database
-- **Endpoint**: `POST /api/seeder`
-- **Description**: Initialize database with user types and Super Admin.
-- **Request**:
-  ```bash
-  curl -X POST http://localhost:3000/api/seeder
-  ```
-- **Success Response** (200 OK):
-  ```json
+**Request:**
+```json
+{
+  "username": "newuser",
+  "password": "password123",
+  "name": "New User",
+  "email": "newuser@example.com",
+  "contactNumber": "1234567890",
+  "userTypeId": 2
+}
+```
+
+**Response:**
+```json
+{
+  "message": "User registered successfully",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### 👥 User Management Endpoints
+
+#### GET `/user`
+Get all users (requires authentication).
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+[
   {
-    "success": true,
-    "messsage": "Database seeded successfully",
-    "data": {
-        "data": true
+    "id": 1,
+    "username": "superAdmin",
+    "profile": {
+      "name": "Super Admin",
+      "email": "superadmin@hrhero.com",
+      "contactNumber": "0000000000"
     }
   }
-  ```
+]
+```
 
-**Note**: For protected endpoints (`/api/user/*`, `/api/auth/logout`), obtain an `access_token` via `/api/auth/login` or `/api/auth/signup`. Replace `<access_token>` and `<refresh_token>` with actual tokens.
+#### GET `/user/id?id=1`
+Get user by ID (requires authentication).
 
-## Testing ✅
-Run unit and end-to-end (E2E) tests with Jest.
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
 
-1. **All Tests**:
-   ```bash
-   npm run test
-   ```
+**Response:**
+```json
+{
+  "id": 1,
+  "username": "superAdmin",
+  "profile": {
+    "name": "Super Admin",
+    "email": "superadmin@hrhero.com",
+    "contactNumber": "0000000000"
+  }
+}
+```
 
-2. **E2E Tests**:
-   ```bash
-   npm run test:e2e
-   ```
+#### POST `/user/register`
+Register a new user (requires appropriate permissions).
 
-3. **Coverage Report**:
-   ```bash
-   npm run test:cov
-   ```
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
 
-4. **Test Files**:
-   - Unit: `test/auth.service.spec.ts`
-   - E2E: `test/auth.e2e-spec.ts`
+**Request:**
+```json
+{
+  "username": "manager1",
+  "password": "password123",
+  "name": "Manager One",
+  "email": "manager1@example.com",
+  "contactNumber": "1234567890",
+  "userTypeId": 2
+}
+```
 
-**Note**: Ensure MySQL and Redis are running for E2E tests.
+**Response:**
+```json
+{
+  "id": 2,
+  "username": "manager1",
+  "profile": {
+    "name": "Manager One",
+    "email": "manager1@example.com",
+    "contactNumber": "1234567890"
+  }
+}
+```
+
+### 🗄️ System Endpoints
+
+#### GET `/`
+Welcome message.
+
+**Response:**
+```
+welcome to lets-form-a-team
+```
+
+#### GET `/health-check`
+Health status check.
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "info": {
+    "database": {
+      "status": "up"
+    }
+  }
+}
+```
+
+#### POST `/seeder`
+Seed the database with initial data.
+
+**Response:**
+```json
+{
+  "message": "Database seeded successfully",
+  "data": true
+}
+```
+
+## 🧪 Testing
+
+### Run All Tests
+```bash
+npm test
+```
+
+### Run Unit Tests Only
+```bash
+npm run test -- --testPathPattern=".spec.ts" --testPathIgnorePatterns="e2e"
+```
+
+### Run E2E Tests Only
+```bash
+npm run test -- --testPathPattern="e2e"
+```
+
+### Run Tests with Coverage
+```bash
+npm run test:cov
+```
+
+### Run Tests in Watch Mode
+```bash
+npm run test:watch
+```
+
+
+## 🔐 User Types & Permissions
+
+### Super Admin (Type ID: 1)
+- Can create managers and employees
+- Full access to all endpoints
+- Can manage all users
+
+### Manager (Type ID: 2)
+- Can create employees
+- Limited access to user management
+- Cannot create other managers
+
+### Employee (Type ID: 3)
+- Basic user access
+- Cannot create other users
+- Limited to personal operations
+
+## 🚀 Deployment
+
+### Docker (Recommended)
+```bash
+# Build the image
+docker build -t lets-form-a-team .
+
+# Run with docker-compose
+docker-compose up -d
+```
+
+### Manual Deployment
+1. Build the application: `npm run build`
+2. Set production environment variables
+3. Start the application: `npm run start:prod`
+4. Use a process manager like PM2 for production
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes
+4. Run tests: `npm test`
+5. Commit your changes: `git commit -m 'Add feature'`
+6. Push to the branch: `git push origin feature-name`
+7. Submit a pull request
