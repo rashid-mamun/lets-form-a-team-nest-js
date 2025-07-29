@@ -35,7 +35,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
                 throw new UnauthorizedException('Invalid access token');
             } else {
                 console.error('Authentication Error:', err);
-                console.error('Additional Info:', info); // Log additional info if available
+                console.error('Additional Info:', info);
                 throw new UnauthorizedException();
             }
         }

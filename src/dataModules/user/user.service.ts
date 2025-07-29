@@ -37,6 +37,10 @@ export class UserEntityService {
         return this.userProfileRepository.findOne({ where: params.filters });
     }
 
+    async getUserTypeMap(params: { filters: Partial<UserTypeMapEntity> }): Promise<UserTypeMapEntity | null> {
+        return this.userTypeMapRepository.findOne({ where: params.filters });
+    }
+
     async insertUser(params: { username: string; password: string }): Promise<UserEntity> {
         const hashedPassword = await bcrypt.hash(params.password, 10);
         const user = this.userRepository.create({ ...params, password: hashedPassword });

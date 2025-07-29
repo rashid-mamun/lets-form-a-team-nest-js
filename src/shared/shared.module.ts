@@ -1,6 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { CentralLogger } from './loggerServices/centralLogger.service';
 import { AxiosService } from './httpServices/axios.service';

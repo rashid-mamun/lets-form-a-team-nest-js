@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { ErrorResponse } from '../serializers/error.serializer';
 export class AlreadyExistException extends HttpException {
-    constructor(resource_name = 'resource', messages: object | null = null) {
+    constructor(resource_name = 'resource', _messages: object | null = null) {
         let errors: ErrorResponse[] = [];
 
         if (Object.keys(errors).length === 0) {

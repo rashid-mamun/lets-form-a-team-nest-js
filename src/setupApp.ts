@@ -15,7 +15,7 @@ import * as bodyParser from 'body-parser';
 import { setupSwagger } from './swagger';
 
 export const setupAPP = async (app: INestApplication) => {
-    const corsOptions: CorsOptions = {
+    const _corsOptions: CorsOptions = {
         origin: '*',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         preflightContinue: false,
@@ -39,7 +39,7 @@ export const setupAPP = async (app: INestApplication) => {
 
     const configSvc = app.get(ConfigService);
 
-    const httpSvc = await app.resolve(AxiosService);
+    const _httpSvc = await app.resolve(AxiosService);
 
     const centralLogger = new CentralLogger();
     app.useGlobalFilters(new AllExceptionsFilter(configSvc, centralLogger));

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { EUserTypes } from 'src/common/constants/common.enum';
 import { UserEntityService } from 'src/dataModules/user/user.service';
 import { CentralLogger } from 'src/shared/loggerServices/centralLogger.service';
@@ -19,7 +19,7 @@ export class UserService {
         private readonly logger: CentralLogger,
     ) {}
 
-    async registerUser(createUserDto: CreateUserDto): Promise<any> {
+    async registerUser(createUserDto: CreateUserDto, requestingUserId?: number): Promise<any> {
         const queryRunner = this.dataSource.createQueryRunner();
         try {
             await queryRunner.connect();
@@ -51,11 +51,29 @@ export class UserService {
                 });
             }
 
-            if (
-                (accountTypeInstance.userTypeId === EUserTypes.MANAGER && createUserDto.userId !== EUserTypes.SUPER_ADMIN) ||
-                (accountTypeInstance.userTypeId === EUserTypes.EMPLOYEE && ![EUserTypes.SUPER_ADMIN, EUserTypes.MANAGER].includes(createUserDto.userId))
-            ) {
-                throw new Error(ApiResponseMessages.UNAUTHORIZED_ACCESS);
+            // Authorization check - only super admins can create managers, super admins and managers can create employees
+            if (requestingUserId) {
+                const requestingUser = await this.userEntityService.getUser({ filters: { id: requestingUserId } });
+                if (!requestingUser) {
+                    throw new ForbiddenException('Requesting user not found');
+                }
+
+                // Get requesting user's role through user type map
+                const requestingUserTypeMap = await this.userEntityService.getUserTypeMap({
+                    filters: { userId: requestingUserId },
+                });
+                if (!requestingUserTypeMap) {
+                    throw new ForbiddenException('Requesting user role not found');
+                }
+
+                // Check permissions based on user type being created
+                if (createUserDto.userTypeId === EUserTypes.MANAGER && requestingUserTypeMap.userTypeId !== EUserTypes.SUPER_ADMIN) {
+                    throw new ForbiddenException('Only super admins can create managers');
+                }
+
+                if (createUserDto.userTypeId === EUserTypes.EMPLOYEE && ![EUserTypes.SUPER_ADMIN, EUserTypes.MANAGER].includes(requestingUserTypeMap.userTypeId)) {
+                    throw new ForbiddenException('Only super admins and managers can create employees');
+                }
             }
 
             const authUserInstance = await this.userEntityService.insertUser({
@@ -68,13 +86,13 @@ export class UserService {
                 contactNumber: createUserDto.contactNumber,
                 email: createUserDto.email,
                 userId: authUserInstance.id,
-                createdBy: createUserDto.userId,
-                updatedBy: createUserDto.userId,
+                createdBy: requestingUserId || authUserInstance.id,
+                updatedBy: requestingUserId || authUserInstance.id,
             });
 
             await this.userEntityService.insertUserTypeMap({
                 userTypeId: accountTypeInstance.id,
-                userId: userProfileInstance.id,
+                userId: authUserInstance.id,
             });
 
             await queryRunner.commitTransaction();
