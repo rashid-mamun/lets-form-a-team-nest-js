@@ -1,0 +1,586 @@
+{
+    "info": {
+        "_postman_id": "lets-form-a-team-api",
+        "name": "Let's Form A Team - NestJS API",
+        "description": "Complete API collection for the Let's Form A Team NestJS application. Includes authentication, user management, and system endpoints.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "lets-form-a-team"
+    },
+    "item": [
+        {
+            "name": "System Endpoints",
+            "item": [
+                {
+                    "name": "Welcome Message",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        },
+                        "description": "Get welcome message from the application"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/health-check",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "health-check"
+                            ]
+                        },
+                        "description": "Check application health status including database connectivity"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Seed Database",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/seeder",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "seeder"
+                            ]
+                        },
+                        "description": "Initialize database with user types and Super Admin user"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "System-level endpoints for application status and initialization"
+        },
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"superAdmin\",\n  \"password\": \"testPassword123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Authenticate user and receive access and refresh tokens"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "logout"
+                            ]
+                        },
+                        "description": "Logout user and blacklist refresh token"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Refresh Token",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/refresh",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "refresh"
+                            ]
+                        },
+                        "description": "Refresh access token using refresh token"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Signup",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"newuser\",\n  \"password\": \"NewUser123!\",\n  \"name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"contactNumber\": \"1234567890\",\n  \"userTypeId\": 2\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/signup",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "signup"
+                            ]
+                        },
+                        "description": "Register a new user (requires authentication)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Authentication endpoints for login, logout, token refresh, and user registration"
+        },
+        {
+            "name": "User Management",
+            "item": [
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/user",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user"
+                            ]
+                        },
+                        "description": "Get all users (requires authentication)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/user/id?id=1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "id"
+                            ],
+                            "query": [
+                                {
+                                    "key": "id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get user by ID (requires authentication)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Register Manager",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"manager1\",\n  \"password\": \"Manager123!\",\n  \"name\": \"Manager One\",\n  \"email\": \"manager1@example.com\",\n  \"contactNumber\": \"1234567890\",\n  \"userTypeId\": 2\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/user/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "register"
+                            ]
+                        },
+                        "description": "Register a new manager (requires Super Admin or Manager permissions)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Register Employee",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"employee1\",\n  \"password\": \"Employee123!\",\n  \"name\": \"Employee One\",\n  \"email\": \"employee1@example.com\",\n  \"contactNumber\": \"0987654321\",\n  \"userTypeId\": 3\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/user/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "register"
+                            ]
+                        },
+                        "description": "Register a new employee (requires Super Admin or Manager permissions)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "User management endpoints for creating and retrieving users"
+        },
+        {
+            "name": "Error Scenarios",
+            "item": [
+                {
+                    "name": "Login - Invalid Credentials",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"invalid\",\n  \"password\": \"wrongpassword\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Test login with invalid credentials"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Refresh Token - Invalid Token",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"refresh_token\": \"invalid-token\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/refresh",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "refresh"
+                            ]
+                        },
+                        "description": "Test refresh token with invalid token"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Users - Unauthorized",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/user",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user"
+                            ]
+                        },
+                        "description": "Test accessing protected endpoint without authentication"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Users - Invalid Token",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer invalid-token"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/user",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user"
+                            ]
+                        },
+                        "description": "Test accessing protected endpoint with invalid token"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Register User - Duplicate Username",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"superAdmin\",\n  \"password\": \"TestUser123!\",\n  \"name\": \"Test User\",\n  \"email\": \"testuser@example.com\",\n  \"contactNumber\": \"1111111111\",\n  \"userTypeId\": 3\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/user/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "register"
+                            ]
+                        },
+                        "description": "Test user registration with duplicate username"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Register User - Duplicate Email",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"newuser\",\n  \"password\": \"TestUser123!\",\n  \"name\": \"Test User\",\n  \"email\": \"superadmin@hrhero.com\",\n  \"contactNumber\": \"1111111111\",\n  \"userTypeId\": 3\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/user/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "register"
+                            ]
+                        },
+                        "description": "Test user registration with duplicate email"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Register User - Invalid User Type",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"newuser\",\n  \"password\": \"TestUser123!\",\n  \"name\": \"Test User\",\n  \"email\": \"newuser@example.com\",\n  \"contactNumber\": \"1111111111\",\n  \"userTypeId\": 999\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/user/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "register"
+                            ]
+                        },
+                        "description": "Test user registration with invalid user type"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User - Not Found",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/user/id?id=999",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "user",
+                                "id"
+                            ],
+                            "query": [
+                                {
+                                    "key": "id",
+                                    "value": "999"
+                                }
+                            ]
+                        },
+                        "description": "Test getting non-existent user"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Error scenario tests for various failure cases"
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "accessToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "refreshToken",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}
